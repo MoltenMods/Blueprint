@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <Version>0.1.0</Version>
+        <Authors>Daemon</Authors>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="../Singularity.Hazel/Hazel/Hazel.csproj" />
+    </ItemGroup>
+</Project>
