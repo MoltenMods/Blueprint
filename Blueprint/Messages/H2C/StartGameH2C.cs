@@ -13,5 +13,10 @@ namespace Blueprint.Messages.H2C
             
             writer.EndMessage();
         }
+
+        public static void Deserialize(IMessageReader reader, out GameCode gameCode)
+        {
+            gameCode = GameCode.CreateFrom(reader);
+        }
     }
 }
