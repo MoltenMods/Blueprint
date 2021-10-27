@@ -9,13 +9,13 @@ namespace Blueprint.Messages.H2C
         public static void Serialize(
             IMessageWriter writer,
             GameCode gameCode,
-            uint clientId,
+            uint playerId,
             DisconnectReason disconnectReason)
         {
             writer.StartMessage((byte) MessageType.RemovePlayer);
             
             writer.Write(gameCode.Value);
-            writer.WritePacked(clientId);
+            writer.WritePacked(playerId);
             writer.Write((byte) disconnectReason);
             
             writer.EndMessage();
@@ -24,11 +24,11 @@ namespace Blueprint.Messages.H2C
         public static void Deserialize(
             IMessageReader reader,
             out GameCode gameCode,
-            out uint clientId,
+            out uint playerId,
             out DisconnectReason disconnectReason)
         {
             gameCode = GameCode.CreateFrom(reader);
-            clientId = reader.ReadPackedUInt32();
+            playerId = reader.ReadPackedUInt32();
             disconnectReason = (DisconnectReason) reader.ReadByte();
         }
     }
