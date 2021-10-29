@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.InnerNetObjects
@@ -11,32 +12,17 @@ namespace Blueprint.Messages.InnerNetObjects
         
         public Vector2 TargetVelocity { get; set; }
         
-        public CustomNetworkTransform(uint netId) : base(netId) {}
+        public CustomNetworkTransform(uint netId, int ownerId = -2) : base(netId, ownerId) {}
 
         protected override void Write(IMessageWriter writer, bool isSpawning)
         {
-            if (isSpawning)
-            {
-                writer.StartMessage(0);
-            }
-            
             writer.Write(this.LastSequenceId);
             writer.Write(this.TargetPosition);
             writer.Write(this.TargetVelocity);
-
-            if (isSpawning)
-            {
-                writer.EndMessage();
-            }
         }
 
         protected override void Read(IMessageReader reader, bool isSpawning)
         {
-            if (isSpawning)
-            {
-                reader = reader.ReadMessage();
-            }
-
             this.LastSequenceId = reader.ReadUInt16();
             this.TargetPosition = reader.ReadVector2();
             this.TargetVelocity = reader.ReadVector2();

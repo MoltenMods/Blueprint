@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using Blueprint.Enums;
+using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.InnerNetObjects
 {
     public abstract class InnerNetObject<T> : InnerNetObject where T : InnerNetObject<T>
     {
-        protected InnerNetObject(uint? netId = null, SpawnType? spawnType = null) : base(netId, spawnType) {}
+        protected InnerNetObject(uint netId, int ownerId = -2) : base(netId, ownerId) {}
         
         public static InnerNetObject<T> CreateFrom(IMessageReader reader, bool isSpawning)
         {
@@ -20,30 +22,84 @@ namespace Blueprint.Messages.InnerNetObjects
     
     public abstract class InnerNetObject
     {
-        public uint? NetId { get; }
+        public virtual SpawnType? SpawnType => null;
         
-        public SpawnType? SpawnType { get; }
+        public uint NetId { get; }
+        
+        public int OwnerId { get; }
 
-        protected InnerNetObject(uint? netId = null, SpawnType? spawnType = null)
+        public List<InnerNetObject> Components { get; }
+
+        protected InnerNetObject(uint netId, int ownerId = -2)
         {
             this.NetId = netId;
-            this.SpawnType = spawnType;
+
+            this.OwnerId = ownerId;
+
+            this.Components = new List<InnerNetObject>();
         }
 
         public void Serialize(IMessageWriter writer, bool isSpawning)
         {
-            if (!this.NetId.HasValue)
+            if (isSpawning)
             {
-                throw new Exception("Attempted to serialize InnerNetObject without a net id");
+                writer.StartMessage(0);
             }
             
-            writer.WritePacked(this.NetId.Value);
             this.Write(writer, isSpawning);
+
+            if (isSpawning)
+            {
+                writer.EndMessage();
+            }
         }
 
         public void Deserialize(IMessageReader reader, bool isSpawning)
         {
-            this.Read(reader, isSpawning);
+            this.Read(isSpawning ? reader.ReadMessage() : reader, isSpawning);
+        }
+
+        public void WriteDataMessage(IMessageWriter writer)
+        {
+            writer.StartMessage((byte) GameDataType.Data);
+            
+            writer.WritePacked(this.NetId);
+            this.Serialize(writer, false);
+            
+            writer.EndMessage();
+        }
+
+        public void WriteSpawnMessage(IMessageWriter writer, SpawnFlags spawnFlags)
+        {
+            writer.StartMessage((byte) GameDataType.Spawn);
+
+            if (this.SpawnType == null)
+            {
+                throw new Exception($"Cannot spawn {this.GetType().Name} as it has no spawn type");
+            }
+            
+            writer.WritePacked((uint) this.SpawnType);
+            writer.WritePacked(this.OwnerId);
+            writer.Write((byte) spawnFlags);
+            
+            writer.WritePacked(this.Components.Count + 1);
+            writer.WritePacked(this.NetId);
+            this.Serialize(writer, true);
+
+            foreach (var component in this.Components)
+            {
+                writer.WritePacked(this.NetId);
+                component.Serialize(writer, true);
+            }
+            
+            writer.EndMessage();
+        }
+
+        public void StartRpcMessage(IMessageWriter writer)
+        {
+            writer.StartMessage((byte) GameDataType.Rpc);
+            
+            writer.WritePacked(this.NetId);
         }
 
         protected abstract void Write(IMessageWriter writer, bool isSpawning);

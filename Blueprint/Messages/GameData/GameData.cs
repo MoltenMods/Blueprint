@@ -1,28 +1,23 @@
-﻿using Blueprint.Enums;
+﻿using Blueprint.Messages.Objects;
 using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.GameData
 {
-    public abstract class GameData
+    public static class GameData
     {
-        public abstract GameDataType GameDataType { get; }
-
-        public void Serialize(IMessageWriter writer)
+        public static void StartGameDataMessage(IMessageWriter writer, GameCode gameCode, int targetPlayerId = -1)
         {
-            writer.StartMessage((byte) this.GameDataType);
-            
-            this.Write(writer);
-            
-            writer.EndMessage();
+            if (targetPlayerId >= 0)
+            {
+                writer.StartMessage((byte) MessageType.GameDataTo);
+                writer.Write(gameCode.Value);
+                writer.WritePacked(targetPlayerId);
+            }
+            else
+            {
+                writer.StartMessage((byte) MessageType.GameData);
+                writer.Write(gameCode.Value);
+            }
         }
-
-        public void Deserialize(IMessageReader reader)
-        {
-            this.Read(reader);
-        }
-
-        protected abstract void Write(IMessageWriter writer);
-
-        protected abstract void Read(IMessageReader reader);
     }
 }

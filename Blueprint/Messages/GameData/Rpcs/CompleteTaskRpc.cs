@@ -3,25 +3,18 @@ using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.GameData.Rpcs
 {
-    public class CompleteTaskRpc : Rpc
+    public static class CompleteTaskRpc
     {
-        public override RpcType RpcType => RpcType.CompleteTask;
-        
-        public uint TaskIndex { get; set; }
-
-        public CompleteTaskRpc(uint taskIndex)
+        public static void Serialize(IMessageWriter writer, uint taskIndex)
         {
-            this.TaskIndex = taskIndex;
+            writer.Write((byte) RpcType.CompleteTask);
+            
+            writer.WritePacked(taskIndex);
         }
 
-        protected override void Write(IMessageWriter writer)
+        public static void Deserialize(IMessageReader reader, out uint taskIndex)
         {
-            writer.WritePacked(this.TaskIndex);
-        }
-
-        protected override void Read(IMessageReader reader)
-        {
-            this.TaskIndex = reader.ReadPackedUInt32();
+            taskIndex = reader.ReadPackedUInt32();
         }
     }
 }

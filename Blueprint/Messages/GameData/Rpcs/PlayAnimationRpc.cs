@@ -3,25 +3,18 @@ using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.GameData.Rpcs
 {
-    public class PlayAnimationRpc : Rpc
+    public static class PlayAnimationRpc
     {
-        public override RpcType RpcType => RpcType.PlayAnimation;
-        
-        public TaskType TaskType { get; set; }
-
-        public PlayAnimationRpc(TaskType taskType)
+        public static void Serialize(IMessageWriter writer, TaskType taskType)
         {
-            this.TaskType = taskType;
+            writer.Write((byte) RpcType.PlayAnimation);
+            
+            writer.Write((byte) taskType);
         }
 
-        protected override void Write(IMessageWriter writer)
+        public static void Deserialize(IMessageReader reader, out TaskType taskType)
         {
-            writer.Write((byte) this.TaskType);
-        }
-
-        protected override void Read(IMessageReader reader)
-        {
-            this.TaskType = (TaskType) reader.ReadByte();
+            taskType = (TaskType) reader.ReadByte();
         }
     }
 }
