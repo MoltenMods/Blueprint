@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Blueprint.Enums.Networking;
+using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.Auth.C2S
 {
@@ -18,17 +19,14 @@ namespace Blueprint.Messages.Auth.C2S
         }
 
         public static void Deserialize(
-            byte[] data,
+            IMessageReader reader,
             out int broadcastVersion,
             out Platform platform,
             out string productUserId)
         {
-            using var memoryStream = new MemoryStream(data);
-            using var binaryReader = new BinaryReader(memoryStream);
-
-            broadcastVersion = binaryReader.ReadInt32();
-            platform = (Platform) binaryReader.ReadByte();
-            productUserId = binaryReader.ReadString();
+            broadcastVersion = reader.ReadInt32();
+            platform = (Platform) reader.ReadByte();
+            productUserId = reader.ReadString();
         }
     }
 }

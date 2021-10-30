@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Blueprint.Enums.Networking;
+using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.C2S
 {
@@ -25,21 +26,18 @@ namespace Blueprint.Messages.C2S
         }
 
         public static void Deserialize(
-            byte[] data,
+            IMessageReader reader,
             out int broadcastVersion,
             out string playerName,
             out uint authNonce,
             out GameKeywords language,
             out QuickChatMode chatMode)
         {
-            using var memoryStream = new MemoryStream(data);
-            using var binaryReader = new BinaryReader(memoryStream);
-
-            broadcastVersion = binaryReader.ReadInt32();
-            playerName = binaryReader.ReadString();
-            authNonce = binaryReader.ReadUInt32();
-            language = (GameKeywords) binaryReader.ReadByte();
-            chatMode = (QuickChatMode) binaryReader.ReadByte();
+            broadcastVersion = reader.ReadInt32();
+            playerName = reader.ReadString();
+            authNonce = reader.ReadUInt32();
+            language = (GameKeywords) reader.ReadByte();
+            chatMode = (QuickChatMode) reader.ReadByte();
         }
     }
 }
