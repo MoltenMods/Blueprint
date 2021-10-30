@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Blueprint.Enums;
 using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
@@ -6,6 +7,8 @@ namespace Blueprint.Messages.InnerNetObjects
 {
     public class GameData : InnerNetObject<GameData>
     {
+        public override SpawnType? SpawnType => Enums.SpawnType.GameData;
+        
         public PlayerInfo[] Players { get; set; }
         
         public VoteBanSystem VoteBanSystem { get; }
