@@ -1,6 +1,5 @@
 ﻿using System;
 using Blueprint.Enums;
-using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.InnerNetObjects

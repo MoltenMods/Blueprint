@@ -36,7 +36,10 @@ namespace Blueprint.Messages.InnerNetObjects
 
             this.OwnerId = ownerId;
 
-            this.Components = new List<InnerNetObject>();
+            this.Components = new List<InnerNetObject>()
+            {
+                this
+            };
         }
 
         public void Serialize(IMessageWriter writer, bool isSpawning)
@@ -82,15 +85,21 @@ namespace Blueprint.Messages.InnerNetObjects
             writer.WritePacked(this.OwnerId);
             writer.Write((byte) spawnFlags);
             
-            writer.WritePacked(this.Components.Count + 1);
-            writer.WritePacked(this.NetId);
-            this.Serialize(writer, true);
-
+            writer.WritePacked(this.Components.Count);
             foreach (var component in this.Components)
             {
                 writer.WritePacked(this.NetId);
                 component.Serialize(writer, true);
             }
+            
+            writer.EndMessage();
+        }
+
+        public void WriteDespawnMessage(IMessageWriter writer)
+        {
+            writer.StartMessage((byte) GameDataType.Despawn);
+            
+            writer.WritePacked(this.NetId);
             
             writer.EndMessage();
         }
