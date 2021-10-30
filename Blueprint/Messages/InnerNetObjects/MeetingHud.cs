@@ -1,6 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Blueprint.Enums;
-using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
 namespace Blueprint.Messages.InnerNetObjects
@@ -9,13 +9,16 @@ namespace Blueprint.Messages.InnerNetObjects
     {
         public override SpawnType? SpawnType => Enums.SpawnType.MeetingHud;
         
-        public PlayerState[] PlayerStates { get; set; }
-        
-        public MeetingHud(uint netId, int ownerId = -2) : base(netId, ownerId) {}
+        public List<PlayerState> PlayerStates { get; set; }
+
+        public MeetingHud(uint netId, int ownerId = -2) : base(netId, ownerId)
+        {
+            this.PlayerStates = new List<PlayerState>();
+        }
 
         protected override void Write(IMessageWriter writer, bool isSpawning)
         {
-            writer.WritePacked(this.PlayerStates.Length);
+            writer.WritePacked(this.PlayerStates.Count);
             foreach (var playerState in this.PlayerStates)
             {
                 writer.StartMessage(playerState.TargetPlayerId);
@@ -29,19 +32,14 @@ namespace Blueprint.Messages.InnerNetObjects
         protected override void Read(IMessageReader reader, bool isSpawning)
         {
             var playerStatesLength = reader.ReadPackedInt32();
-            this.PlayerStates = new PlayerState[playerStatesLength];
+            this.PlayerStates.Clear();
             for (var i = 0; i < playerStatesLength; i++)
             {
                 var playerStateReader = reader.ReadMessage();
                 var playerState = this.PlayerStates.FirstOrDefault(
                     voteArea => voteArea.TargetPlayerId == playerStateReader.Tag);
 
-                if (playerState == null)
-                {
-                    continue;
-                }
-                
-                playerState.Deserialize(playerStateReader);
+                playerState?.Deserialize(playerStateReader);
             }
         }
 

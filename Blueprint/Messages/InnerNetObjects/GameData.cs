@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Blueprint.Enums;
 using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
@@ -9,12 +10,13 @@ namespace Blueprint.Messages.InnerNetObjects
     {
         public override SpawnType? SpawnType => Enums.SpawnType.GameData;
         
-        public PlayerInfo[] Players { get; set; }
+        public List<PlayerInfo> Players { get; set; }
         
         public VoteBanSystem VoteBanSystem { get; }
 
         public GameData(uint netId, uint voteBanSystemNetId, int ownerId = -2) : base(netId, ownerId)
         {
+            this.Players = new List<PlayerInfo>();
             this.VoteBanSystem = new VoteBanSystem(voteBanSystemNetId, ownerId);
             
             this.Components.Add(this.VoteBanSystem);
@@ -24,7 +26,7 @@ namespace Blueprint.Messages.InnerNetObjects
         {
             if (isSpawning)
             {
-                writer.WritePacked((uint) this.Players.Length);
+                writer.WritePacked((uint) this.Players.Count);
             }
 
             foreach (var player in this.Players)
@@ -64,10 +66,10 @@ namespace Blueprint.Messages.InnerNetObjects
             if (isSpawning)
             {
                 var playersLength = reader.ReadPackedUInt32();
-                this.Players = new PlayerInfo[playersLength];
+                this.Players.Clear();
                 for (var i = 0; i < playersLength; i++)
                 {
-                    this.Players[i] = PlayerInfo.CreateFrom(reader, reader.ReadByte());
+                    this.Players.Add(PlayerInfo.CreateFrom(reader, reader.ReadByte()));
                 }
             }
             else

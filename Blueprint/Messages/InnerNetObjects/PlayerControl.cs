@@ -1,4 +1,5 @@
-﻿using Blueprint.Enums;
+﻿using System;
+using Blueprint.Enums;
 using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
@@ -22,6 +23,9 @@ namespace Blueprint.Messages.InnerNetObjects
             uint netTransformNetId,
             int ownerId = -2) : base(netId, ownerId)
         {
+            this.PlayerId = Byte.MaxValue;
+            this.IsNew = true;
+            
             this.Physics = new PlayerPhysics(physicsNetId);
             this.NetTransform = new CustomNetworkTransform(netTransformNetId);
             

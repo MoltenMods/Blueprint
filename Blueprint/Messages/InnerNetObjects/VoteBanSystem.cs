@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Blueprint.Enums.Networking;
 using Singularity.Hazel.Api.Net.Messages;
 
@@ -6,13 +7,16 @@ namespace Blueprint.Messages.InnerNetObjects
 {
     public class VoteBanSystem : InnerNetObject<VoteBanSystem>
     {
-        public PlayerKickVote[] PlayerKickVotes { get; set; }
+        public List<PlayerKickVote> PlayerKickVotes { get; set; }
 
-        public VoteBanSystem(uint netId, int ownerId = -2) : base(netId, ownerId) {}
+        public VoteBanSystem(uint netId, int ownerId = -2) : base(netId, ownerId)
+        {
+            this.PlayerKickVotes = new List<PlayerKickVote>();
+        }
 
         protected override void Write(IMessageWriter writer, bool isSpawning)
         {
-            writer.Write((byte) this.PlayerKickVotes.Length);
+            writer.Write((byte) this.PlayerKickVotes.Count);
             foreach (var playerKickVote in this.PlayerKickVotes)
             {
                 writer.Write(playerKickVote.PlayerId);
@@ -27,17 +31,17 @@ namespace Blueprint.Messages.InnerNetObjects
         protected override void Read(IMessageReader reader, bool isSpawning)
         {
             var playerKickVotesLength = reader.ReadByte();
-            this.PlayerKickVotes = new PlayerKickVote[playerKickVotesLength];
+            this.PlayerKickVotes.Clear();
             for (var i = 0; i < playerKickVotesLength; i++)
             {
-                this.PlayerKickVotes[i] = new PlayerKickVote(
+                this.PlayerKickVotes.Add(new PlayerKickVote(
                     reader.ReadUInt32(),
                     new []
                     {
                         reader.ReadPackedUInt32(),
                         reader.ReadPackedUInt32(),
                         reader.ReadPackedUInt32()
-                    });
+                    }));
             }
         }
     }

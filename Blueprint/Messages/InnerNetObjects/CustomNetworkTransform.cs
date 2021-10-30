@@ -11,8 +11,13 @@ namespace Blueprint.Messages.InnerNetObjects
         public Vector2 TargetPosition { get; set; }
         
         public Vector2 TargetVelocity { get; set; }
-        
-        public CustomNetworkTransform(uint netId, int ownerId = -2) : base(netId, ownerId) {}
+
+        public CustomNetworkTransform(uint netId, int ownerId = -2) : base(netId, ownerId)
+        {
+            this.LastSequenceId = 0;
+            this.TargetPosition = Vector2.Zero;
+            this.TargetVelocity = Vector2.Zero;
+        }
 
         protected override void Write(IMessageWriter writer, bool isSpawning)
         {
